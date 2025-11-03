@@ -43,14 +43,15 @@ jobs:
           ls -R data/
           ls -R models/
 
-      # Run tests and save output
+      # ✅ Run tests and capture results
       - name: Run unit tests
         run: |
           pytest tests/test_pipeline.py -v | tee result.txt
+          cat result.txt
 
-      # Upload report to GitHub using CML
+      # ✅ Post results as PR comment using CML
       - name: Comment test results
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cml comment create --pr --file result.txt
+          cml comment create result.txt
