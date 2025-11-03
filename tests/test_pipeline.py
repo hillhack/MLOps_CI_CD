@@ -7,8 +7,8 @@ import pandas as pd
 # Add parent directory to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src/data_validation import load_data, validate_data 
-from src/evaluate import evaluate_model
+from src.data_validation import load_data, validate_data 
+from src.evaluate import evaluate_model
 
 
 @pytest.fixture
