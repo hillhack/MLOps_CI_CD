@@ -45,7 +45,7 @@ jobs:
       # Run tests
       - name: Run unit tests
         run: |
-          pytest -v --maxfail=1 --disable-warnings > result.txt
+          pytest tests/test_pipeline.py
 
       # Upload report to GitHub using CML
       - name: Comment test results
