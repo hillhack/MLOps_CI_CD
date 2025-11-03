@@ -57,4 +57,4 @@ jobs:
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cml comment create result.txt
+          cml comment create --target=commit result.txt
