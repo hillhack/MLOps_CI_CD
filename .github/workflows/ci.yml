@@ -34,13 +34,6 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # Configure DVC Remote
-      - name: Configure DVC Remote
-        run: |
-          dvc remote modify myremote gdrive_use_service_account true || true
-          dvc remote modify myremote credentialpath gcs-key.json || true
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcs-key.json
-          dvc remote modify myremote account_key_file gcs-key.json
 
       # Pull data & model from DVC
       - name: Pull data and model from DVC remote
@@ -59,4 +52,4 @@ jobs:
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cml comment create --pr --file result.txt
+          cml comment create --pr --file result.tx
