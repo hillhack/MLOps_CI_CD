@@ -1,0 +1,11 @@
+# Ignore DVC-tracked data and models
+data/
+models/
+
+# Ignore DVC cache and tmp files
+.dvc/cache/
+.dvc/tmp/
+
+# Ignore Python & environment files
+__pycache__/
+.env/
