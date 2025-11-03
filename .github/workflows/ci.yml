@@ -21,18 +21,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Install dependencies
+      # Install dependencies (Python + CML)
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install dvc-gs pytest 
+          pip install dvc[gs] pytest
+          npm install -g @dvcorg/cml
 
       # 🔐 Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-
 
       # Pull data & model from DVC
       - name: Pull data and model from DVC remote
@@ -42,14 +43,14 @@ jobs:
           ls -R data/
           ls -R models/
 
-      # Run tests
+      # Run tests and save output
       - name: Run unit tests
         run: |
-          pytest tests/test_pipeline.py
+          pytest tests/test_pipeline.py -v | tee result.txt
 
       # Upload report to GitHub using CML
       - name: Comment test results
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cml comment create --pr --file result.tx
+          cml comment create --pr --file result.txt
