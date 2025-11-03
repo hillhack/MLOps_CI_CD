@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## 🧠 Project Overview
 
 This project demonstrates a **complete MLOps pipeline** — from data tracking to model versioning — using:
@@ -245,3 +246,5 @@ Your workflow will automatically:
 ---
 
 
+=======
+>>>>>>> 5125f68 (Initial setup with CI and tests updated)

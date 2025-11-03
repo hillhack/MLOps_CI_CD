@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import sys
 import os
 import pytest
@@ -11,6 +12,14 @@ from src.data_validation import load_data, validate_data
 from src.evaluate import evaluate_model
 
 
+=======
+import pytest
+import pandas as pd
+import joblib
+from src.data_validation import load_data, validate_data
+from src.evaluate import evaluate_model
+
+>>>>>>> 5125f68 (Initial setup with CI and tests updated)
 @pytest.fixture
 def data():
     return load_data("data/iris_data.csv")
