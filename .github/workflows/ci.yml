@@ -1,30 +1,62 @@
-name: CI Pipeline
+name: CI Pipeline - DVC + Pytest + CML
 
 on:
   push:
-    branches: [ dev ]
+    branches: [dev, main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  test:
+  build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+      # Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      # Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      # Install dependencies
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest dvc[all]
+          pip install dvc[gcs] pytest cml
 
-      - name: Pull data and model from DVC
-        run: dvc pull
+      # 🔐 Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      - name: Run tests
-        run: pytest -v
+      # Configure DVC Remote
+      - name: Configure DVC Remote
+        run: |
+          dvc remote modify myremote gdrive_use_service_account true || true
+          dvc remote modify myremote credentialpath gcs-key.json || true
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcs-key.json
+          dvc remote modify myremote account_key_file gcs-key.json
+
+      # Pull data & model from DVC
+      - name: Pull data and model from DVC remote
+        run: |
+          dvc pull
+          ls -R data/
+          ls -R models/
+
+      # Run tests
+      - name: Run unit tests
+        run: |
+          pytest -v --maxfail=1 --disable-warnings > result.txt
+
+      # Upload report to GitHub using CML
+      - name: Comment test results
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create --pr --file result.txt
