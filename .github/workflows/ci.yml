@@ -37,7 +37,7 @@ jobs:
       # Pull data & model from DVC
       - name: Pull data and model from DVC remote
         run: |
-          dvc remote default gcsremote
+          dvc remote default myremote
           dvc pull
           ls -R data/
           ls -R models/
