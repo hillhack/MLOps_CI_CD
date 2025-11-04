@@ -41,7 +41,7 @@ jobs:
       - name: Pull data and model from DVC remote
         run: |
           dvc remote default myremote
-          dvc pull
+          dvc pull --force
           ls -R data/
           ls -R models/
 
