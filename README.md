@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-## 🧠 Project Overview
+<<<<<<< HEAD 
+##  Project Overview
 
 This project demonstrates a **complete MLOps pipeline** — from data tracking to model versioning — using:
 
@@ -244,6 +244,7 @@ Your workflow will automatically:
 * Deploy or validate the build
 
 ---
+
 
 
 =======
