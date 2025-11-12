@@ -1,0 +1,5 @@
+outs:
+- md5: 8f222592977b3e650c488b4e46168fcb
+  size: 711
+  hash: md5
+  path: scaler.joblib
