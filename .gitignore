@@ -1,0 +1,14 @@
+# Ignore raw data and models, but not DVC metadata
+/data/*
+/models/*
+!.gitignore
+!data/*.dvc
+!models/*.dvc
+
+# Ignore DVC cache
+.dvc/cache/
+.dvc/tmp/
+
+# Python + environment
+__pycache__/
+.env/

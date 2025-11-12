@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: irisapi
+  labels:
+    app: irisapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: irisapi
+  template:
+    metadata:
+      labels:
+        app: irisapi
+    spec:
+      containers:
+      - name: irisapi
+        image: us-central1-docker.pkg.dev/clean-abacus-473803-a2/iris-repo/irisapi:v1
+        ports:
+        - containerPort: 8000
+        env:
+        - name: ENV
+          value: "production"

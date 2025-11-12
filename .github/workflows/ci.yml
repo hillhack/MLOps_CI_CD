@@ -1,0 +1,60 @@
+name: CI Pipeline - DVC + Pytest + CML
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [main]
+    
+permissions: write-all
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repo
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # 3️⃣ Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install dvc[gs] pytest joblib
+          npm install -g @dvcorg/cml
+
+      # 4️⃣ Authenticate to Google Cloud (for DVC)
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      # 5️⃣ Pull data & models from DVC
+      - name: Pull data and models from DVC remote
+        run: |
+          dvc remote default myremote
+          dvc pull --force
+          ls -R data/
+          ls -R models/
+          ls -R scaler/
+
+      # 6️⃣ Run tests
+      - name: Run unit tests
+        run: |
+          pytest tests/test_pipeline.py -v | tee result.txt
+          cat result.txt
+
+      # 7️⃣ Post results as PR comment using CML
+      - name: Comment test results
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create --target=commit result.txt
