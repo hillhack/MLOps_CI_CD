@@ -3,3 +3,5 @@ scikit-learn
 joblib
 pytest
 dvc
+fastapi
+uvicorn[standard]==0.22.0
