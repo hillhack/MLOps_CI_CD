@@ -13,45 +13,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo
+      # 1️⃣ Checkout repo
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Setup Python
+      # 2️⃣ Setup Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # Install dependencies (Python + CML)
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install dvc[gs] pytest
+          pip install dvc[gs] pytest joblib
           npm install -g @dvcorg/cml
 
-      # 🔐 Authenticate to Google Cloud
+      # 4️⃣ Authenticate to Google Cloud (for DVC)
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-      # Pull data & model from DVC
-      - name: Pull data and model from DVC remote
+      # 5️⃣ Pull data & models from DVC
+      - name: Pull data and models from DVC remote
         run: |
           dvc remote default myremote
           dvc pull --force
           ls -R data/
           ls -R models/
+          ls -R scaler/
 
-      # ✅ Run tests and capture results
+      # 6️⃣ Run tests
       - name: Run unit tests
         run: |
           pytest tests/test_pipeline.py -v | tee result.txt
           cat result.txt
 
-      # ✅ Post results as PR comment using CML
+      # 7️⃣ Post results as PR comment using CML
       - name: Comment test results
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
