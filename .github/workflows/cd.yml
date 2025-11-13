@@ -90,11 +90,22 @@ jobs:
       - name: Setup HPA
         run: kubectl apply -f k8s/hpa.yaml
 
-      # 1️⃣2️⃣ Stress Test using wrk
+      # 1️⃣2️⃣ Install wrk
       - name: Install wrk
         run: sudo apt-get update && sudo apt-get install -y wrk
+
+      # 1️⃣3️⃣ Write wrk Lua script for POST requests
+      - name: Create wrk POST Lua script
+        run: |
+          cat <<EOF > post.lua
+          wrk.method = "POST"
+          wrk.headers["Content-Type"] = "application/json"
+          wrk.body = '{"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}'
+          EOF
+
+      # 1️⃣4️⃣ Run stress test with wrk
       - name: Run stress test
         run: |
           SERVICE_IP=$(kubectl get svc ${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           echo "Service IP: $SERVICE_IP"
-          wrk -t2 -c1000 -d60s http://$SERVICE_IP:8000/predict
+          wrk -t10 -c1000 -d60s -s post.lua http://$SERVICE_IP:8000/predict
