@@ -11,7 +11,7 @@ env:
   REPO_NAME: iris-api-repo
   IMAGE_NAME: iris-api
   CLUSTER_NAME: iris-cluster
-  CLUSTER_ZONE: us-central1-a
+  CLUSTER_ZONE: us-east1
   DEPLOYMENT_NAME: iris-api
   NAMESPACE: default
 
