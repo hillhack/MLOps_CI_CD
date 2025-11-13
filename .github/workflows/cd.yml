@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repo
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -30,7 +30,7 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           
-      # ✅ Install GKE gcloud auth plugin (for kubectl authentication)
+      # 3️⃣ Install GKE gcloud auth plugin (required for kubectl)
       - name: Install GKE gcloud auth plugin
         run: |
           echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -39,41 +39,50 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-cloud-cli-gke-gcloud-auth-plugin
 
-
-
-      # 3️⃣ Setup gcloud CLI
+      # 4️⃣ Set up gcloud SDK
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ env.PROJECT_ID }}
 
-      # 4️⃣ Configure Docker for GAR
+      # 5️⃣ Configure Docker for Artifact Registry
       - name: Configure Docker for GAR
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev --quiet
 
-      # 5️⃣ Build Docker image
+      # 6️⃣ Build Docker image
       - name: Build Docker image
         run: |
           docker build -t ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
 
-      # 6️⃣ Push Docker image to GAR
+      # 7️⃣ Push image to Artifact Registry
       - name: Push Docker image
         run: |
           docker push ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-      # 7️⃣ Get GKE credentials
+      # 8️⃣ Get GKE credentials
       - name: Get GKE credentials
         run: |
           gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} \
           --zone ${{ env.CLUSTER_ZONE }} --project ${{ env.PROJECT_ID }}
 
-      # 8️⃣ Update deployment with new image
+      # 🧩 NEW STEP: Apply manifests if not already deployed
+      - name: Apply Kubernetes manifests
+        run: |
+          if ! kubectl get deployment ${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }} >/dev/null 2>&1; then
+            echo "Creating Kubernetes resources..."
+            kubectl apply -f k8s/deployment.yaml
+            kubectl apply -f k8s/service.yaml
+          else
+            echo "Deployment already exists, skipping creation."
+          fi
+
+      # 9️⃣ Update deployment with new image
       - name: Deploy new image to GKE
         run: |
           kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
           ${{ env.DEPLOYMENT_NAME }}=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
           -n ${{ env.NAMESPACE }}
 
-      # 9️⃣ Verify deployment
+      # 🔟 Verify deployment rollout
       - name: Verify rollout status
         run: kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }}
