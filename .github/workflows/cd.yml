@@ -31,8 +31,11 @@ jobs:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
       # 3️⃣ Install gke-gcloud-auth-plugin
+      # 3️⃣ Install gke-gcloud-auth-plugin (simpler)
       - name: Install GKE auth plugin
-        run: sudo apt-get update && sudo apt-get install -y google-cloud-cli-gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin -q
+
 
       # 4️⃣ Set up gcloud SDK
       - name: Set up gcloud
