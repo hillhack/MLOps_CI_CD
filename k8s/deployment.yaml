@@ -1,24 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: irisapi
+  name: iris-api
   labels:
-    app: irisapi
+    app: iris-api
 spec:
-  replicas: 2
+  replicas: 2  # run 2 pods for redundancy
   selector:
     matchLabels:
-      app: irisapi
+      app: iris-api
   template:
     metadata:
       labels:
-        app: irisapi
+        app: iris-api
     spec:
       containers:
-      - name: irisapi
-        image: us-central1-docker.pkg.dev/clean-abacus-473803-a2/iris-repo/irisapi:v1
-        ports:
-        - containerPort: 8000
-        env:
-        - name: ENV
-          value: "production"
+        - name: iris-api
+          image: us-central1-docker.pkg.dev/clean-abacus-473803-a2/iris-api-repo/iris-api:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
