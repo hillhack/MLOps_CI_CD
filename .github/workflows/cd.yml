@@ -108,4 +108,5 @@ jobs:
         run: |
           SERVICE_IP=$(kubectl get svc ${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           echo "Service IP: $SERVICE_IP"
-          wrk -t10 -c1000 -d60s -s post.lua http://$SERVICE_IP:8000/predict
+          wrk -t10 -c1000 -d60s -s post.lua http://$SERVICE_IP/predict
+
