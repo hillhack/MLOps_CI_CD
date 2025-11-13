@@ -30,9 +30,15 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           
-      - name: Install gke-gcloud-auth-plugin
+      # ✅ Install GKE gcloud auth plugin (for kubectl authentication)
+      - name: Install GKE gcloud auth plugin
         run: |
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          sudo apt-get install -y apt-transport-https ca-certificates gnupg
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+          sudo apt-get update
           sudo apt-get install -y google-cloud-cli-gke-gcloud-auth-plugin
+
 
 
       # 3️⃣ Setup gcloud CLI
