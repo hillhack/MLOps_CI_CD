@@ -28,9 +28,9 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
-          project_id: ${{ env.PROJECT_ID }}
+          # project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-          export_default_credentials: true
+          # export_default_credentials: true
 
       # 3️⃣ Authenticate Docker with GAR
       - name: Configure Docker for GAR
